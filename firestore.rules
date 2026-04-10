@@ -1,0 +1,91 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: settings
+// Document ID: content
+// Fields:
+//   - heroTitle: string (required)
+//   - heroSubtitle: string (required)
+//   - aboutText: string
+//   - contactEmail: string
+//   - contactPhone: string
+//   - address: string
+//
+// Collection: stages
+// Fields:
+//   - name: string (required)
+//   - description: string (required)
+//   - imageUrl: string
+//   - features: list
+//
+// Collection: gallery
+// Fields:
+//   - title: string (required)
+//   - imageUrl: string (required)
+//   - category: string
+//   - createdAt: timestamp
+//
+// Collection: blogs
+// Fields:
+//   - title: string (required)
+//   - content: string (required)
+//   - imageUrl: string
+//   - publishedAt: timestamp
+//   - author: string
+//
+// Collection: inquiries
+// Fields:
+//   - name: string (required)
+//   - email: string (required)
+//   - phone: string
+//   - message: string (required)
+//   - createdAt: timestamp
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "fsferdows04@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    // Site Content & Settings
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Stages
+    match /stages/{stageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Gallery
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Blogs
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Inquiries
+    match /inquiries/{inquiryId} {
+      allow create: if true; // Anyone can submit an inquiry
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

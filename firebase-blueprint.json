@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "SiteContent": {
+      "title": "Site Content",
+      "description": "Global settings and text content for the website.",
+      "type": "object",
+      "properties": {
+        "heroTitle": { "type": "string", "description": "Main headline on the hero section" },
+        "heroSubtitle": { "type": "string", "description": "Sub-headline on the hero section" },
+        "aboutText": { "type": "string", "description": "Text for the about section" },
+        "contactEmail": { "type": "string", "format": "email" },
+        "contactPhone": { "type": "string" },
+        "address": { "type": "string" }
+      },
+      "required": ["heroTitle", "heroSubtitle"]
+    },
+    "StageType": {
+      "title": "Stage Type",
+      "description": "Information about different stage configurations offered.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "features": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "description"]
+    },
+    "GalleryItem": {
+      "title": "Gallery Item",
+      "description": "A project photo for the gallery.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "category": { "type": "string", "enum": ["Concert", "Corporate", "Exhibition", "Wedding"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["imageUrl", "title"]
+    },
+    "Blog": {
+      "title": "Blog Post",
+      "description": "An article or news update.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "publishedAt": { "type": "string", "format": "date-time" },
+        "author": { "type": "string" }
+      },
+      "required": ["title", "content"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Contact form submission from a potential customer.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/settings/content": {
+      "schema": "SiteContent",
+      "description": "Global site content settings."
+    },
+    "/stages/{stageId}": {
+      "schema": "StageType",
+      "description": "Collection of stage types."
+    },
+    "/gallery/{itemId}": {
+      "schema": "GalleryItem",
+      "description": "Collection of gallery images."
+    },
+    "/blogs/{blogId}": {
+      "schema": "Blog",
+      "description": "Collection of blog posts."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Customer inquiries."
+    }
+  }
+}
