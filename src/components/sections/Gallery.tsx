@@ -3,9 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { GalleryItem } from '../../types';
+import Skeleton from '../ui/Skeleton';
+import GlowCard from '../ui/GlowCard';
 
 export default function Gallery() {
   const [items, setItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +33,7 @@ export default function Gallery() {
       } else {
         setItems(data);
       }
+      setLoading(false);
     });
     return () => unsub();
   }, []);
@@ -54,12 +58,14 @@ export default function Gallery() {
           alt="Gallery Background"
           referrerPolicy="no-referrer"
         />
-        <iframe
-          src="https://www.youtube.com/embed/0Ac0u58jeCA?autoplay=1&mute=1&loop=1&playlist=0Ac0u58jeCA&controls=0&showinfo=0&autohide=1&modestbranding=1&rel=0&playsinline=1"
-          className="absolute top-1/2 left-1/2 w-[120vw] h-[120vh] min-w-[177.77vh] min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-40"
-          allow="autoplay; encrypted-media"
-          title="Riyadh Projects"
-        />
+        {!loading && (
+          <iframe
+            src="https://www.youtube.com/embed/0Ac0u58jeCA?autoplay=1&mute=1&loop=1&playlist=0Ac0u58jeCA&controls=0&showinfo=0&autohide=1&modestbranding=1&rel=0&playsinline=1"
+            className="absolute top-1/2 left-1/2 w-[120vw] h-[120vh] min-w-[177.77vh] min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-40"
+            allow="autoplay; encrypted-media"
+            title="Riyadh Projects"
+          />
+        )}
         <div className="absolute inset-0 bg-brand-primary/0" />
       </motion.div>
 
@@ -92,11 +98,19 @@ export default function Gallery() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {filteredItems.map((item, idx) => (
-            <div key={item.id}>
-              <GalleryCard item={item} idx={idx} />
-            </div>
-          ))}
+          {loading ? (
+            [...Array(4)].map((_, i) => (
+              <div key={i}>
+                <Skeleton className="aspect-[4/5] rounded-[3rem]" />
+              </div>
+            ))
+          ) : (
+            filteredItems.map((item, idx) => (
+              <div key={item.id}>
+                <GalleryCard item={item} idx={idx} />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>
@@ -117,44 +131,46 @@ function GalleryCard({ item, idx }: { item: GalleryItem; idx: number }) {
   const y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
   return (
-    <motion.div
-      ref={containerRef}
-      style={{ rotateX, rotateY, scale }}
-      layout
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 1, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative aspect-[4/5] overflow-hidden rounded-[3rem] bg-brand-surface perspective-2000 preserve-3d shadow-2xl"
-    >
-      <motion.div style={{ y }} className="absolute inset-0 w-full h-[140%]">
-        <img 
-          src={item.imageUrl} 
-          alt={item.title} 
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-75"
-          referrerPolicy="no-referrer"
-        />
-        {/* Hover Lens Effect */}
-        <div className="absolute inset-0 bg-brand-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay" />
-      </motion.div>
-      
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      <div className="absolute inset-0 p-8 flex flex-col justify-end transform translate-z-50">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          className="w-10 h-10 rounded-xl overflow-hidden mb-6 border border-white/10 shadow-2xl hidden md:block"
-        >
-          <img src={item.imageUrl} className="w-full h-full object-cover" alt="Thumbnail" referrerPolicy="no-referrer" />
+    <GlowCard className="rounded-[3rem]">
+      <motion.div
+        ref={containerRef}
+        style={{ rotateX, rotateY, scale }}
+        layout
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 1, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+        className="group relative aspect-[4/5] overflow-hidden rounded-[3rem] bg-brand-surface perspective-2000 preserve-3d shadow-2xl"
+      >
+        <motion.div style={{ y }} className="absolute inset-0 w-full h-[140%]">
+          <img 
+            src={item.imageUrl} 
+            alt={item.title} 
+            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-75"
+            referrerPolicy="no-referrer"
+          />
+          {/* Hover Lens Effect */}
+          <div className="absolute inset-0 bg-brand-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay" />
         </motion.div>
-        <span className="text-brand-accent uppercase tracking-[0.5em] text-[10px] font-bold mb-3 block">Project</span>
-        <h4 className="text-xl md:text-2xl font-serif text-brand-neutral mb-2 tracking-tight">{item.title}</h4>
-        <p className="text-[9px] text-brand-neutral/40 font-bold uppercase tracking-[0.3em]">{item.category}</p>
-      </div>
-      
-      {/* Border Highlight */}
-      <div className="absolute inset-0 border border-white/5 rounded-[3rem] group-hover:border-brand-accent/20 transition-colors duration-500" />
-    </motion.div>
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        <div className="absolute inset-0 p-8 flex flex-col justify-end transform translate-z-50">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="w-10 h-10 rounded-xl overflow-hidden mb-6 border border-white/10 shadow-2xl hidden md:block"
+          >
+            <img src={item.imageUrl} className="w-full h-full object-cover" alt="Thumbnail" referrerPolicy="no-referrer" />
+          </motion.div>
+          <span className="text-brand-accent uppercase tracking-[0.5em] text-[10px] font-bold mb-3 block">Project</span>
+          <h4 className="text-xl md:text-2xl font-serif text-brand-neutral mb-2 tracking-tight">{item.title}</h4>
+          <p className="text-[9px] text-brand-neutral/40 font-bold uppercase tracking-[0.3em]">{item.category}</p>
+        </div>
+        
+        {/* Border Highlight */}
+        <div className="absolute inset-0 border border-white/5 rounded-[3rem] group-hover:border-brand-accent/20 transition-colors duration-500" />
+      </motion.div>
+    </GlowCard>
   );
 }

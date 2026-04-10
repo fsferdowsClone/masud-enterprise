@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
+import MagneticButton from '../ui/MagneticButton';
 
 interface NavbarProps {
   onAdminClick: () => void;
@@ -9,6 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ onAdminClick }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
 
   const navLinks = [
     { name: 'Home', href: '#home' },
@@ -38,19 +40,27 @@ export default function Navbar({ onAdminClick }: NavbarProps) {
             <motion.a
               key={link.name}
               href={link.href}
-              whileHover={{ y: -2 }}
-              className="text-[9px] font-bold uppercase tracking-[0.3em] text-brand-neutral/40 hover:text-brand-accent transition-colors"
+              onMouseEnter={() => setHoveredLink(link.name)}
+              onMouseLeave={() => setHoveredLink(null)}
+              className="relative text-[9px] font-bold uppercase tracking-[0.3em] text-brand-neutral/40 hover:text-brand-accent transition-colors py-2"
             >
               {link.name}
+              {hoveredLink === link.name && (
+                <motion.div
+                  layoutId="nav-underline"
+                  className="absolute bottom-0 left-0 right-0 h-px bg-brand-accent"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
             </motion.a>
           ))}
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            onClick={onAdminClick}
-            className="px-5 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-brand-neutral/30 hover:text-brand-neutral transition-colors"
-          >
-            Admin
-          </motion.button>
+          <MagneticButton onClick={onAdminClick}>
+            <div className="px-5 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] text-brand-neutral/30 hover:text-brand-neutral transition-colors">
+              Admin
+            </div>
+          </MagneticButton>
         </div>
 
         {/* Mobile Toggle */}

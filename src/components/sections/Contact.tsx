@@ -3,8 +3,17 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { motion } from 'motion/react';
 import { Send, Phone, Mail, MapPin } from 'lucide-react';
+import MagneticButton from '../ui/MagneticButton';
 
-export default function Contact() {
+import { SiteContent } from '../../types';
+import Skeleton from '../ui/Skeleton';
+
+interface ContactProps {
+  content: SiteContent;
+  loading?: boolean;
+}
+
+export default function Contact({ content, loading }: ContactProps) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -30,14 +39,37 @@ export default function Contact() {
         <div>
           <span className="text-brand-accent uppercase tracking-[0.8em] text-[10px] font-bold mb-8 block">Get In Touch</span>
           <h2 className="text-4xl md:text-6xl font-display font-bold text-brand-primary mb-10 tracking-tighter leading-[0.9]">START YOUR <br /> <span className="italic font-serif font-light text-brand-accent">Project</span></h2>
-          <p className="text-brand-primary/40 mb-16 max-w-sm leading-relaxed font-light text-lg">
-            Ready to build a world-class stage? Contact our Riyadh team for a consultation and custom quote.
-          </p>
+          <div className="mb-16 max-w-sm">
+            {loading ? (
+              <div className="space-y-2">
+                <Skeleton variant="text" className="w-full" />
+                <Skeleton variant="text" className="w-3/4" />
+              </div>
+            ) : (
+              <p className="text-brand-primary/40 leading-relaxed font-light text-lg">
+                Ready to build a world-class stage? Contact our Riyadh team for a consultation and custom quote.
+              </p>
+            )}
+          </div>
 
           <div className="space-y-10">
-            <ContactInfo icon={<Phone className="w-5 h-5" />} label="Phone" value="+966 50 123 4567" />
-            <ContactInfo icon={<Mail className="w-5 h-5" />} label="Email" value="sales@masudenterprise.com" />
-            <ContactInfo icon={<MapPin className="w-5 h-5" />} label="Office" value="Industrial City, Riyadh, KSA" />
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-6">
+                  <Skeleton variant="circle" className="w-12 h-12" />
+                  <div className="space-y-2">
+                    <Skeleton variant="text" className="w-16 h-2" />
+                    <Skeleton variant="text" className="w-32 h-4" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                <ContactInfo icon={<Phone className="w-5 h-5" />} label="Phone" value={content.contactPhone} />
+                <ContactInfo icon={<Mail className="w-5 h-5" />} label="Email" value={content.contactEmail} />
+                <ContactInfo icon={<MapPin className="w-5 h-5" />} label="Office" value={content.address} />
+              </>
+            )}
           </div>
         </div>
 
@@ -90,16 +122,13 @@ export default function Contact() {
               />
             </div>
 
-            <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              disabled={status === 'submitting'}
-              className="w-full py-6 bg-brand-primary text-brand-neutral rounded-full font-bold flex items-center justify-center gap-3 hover:bg-brand-accent hover:text-brand-primary transition-all disabled:opacity-50 uppercase text-[10px] tracking-[0.4em] shadow-2xl"
-            >
-              {status === 'submitting' ? 'Sending...' : (
-                <>Send Inquiry <Send className="w-4 h-4" /></>
-              )}
-            </motion.button>
+            <MagneticButton type="submit" className="w-full">
+              <div className="w-full py-6 bg-brand-primary text-brand-neutral rounded-full font-bold flex items-center justify-center gap-3 hover:bg-brand-accent hover:text-brand-primary transition-all disabled:opacity-50 uppercase text-[10px] tracking-[0.4em] shadow-2xl">
+                {status === 'submitting' ? 'Sending...' : (
+                  <>Send Inquiry <Send className="w-4 h-4" /></>
+                )}
+              </div>
+            </MagneticButton>
 
             {status === 'success' && (
               <p className="text-center text-green-600 text-sm font-medium">Thank you! We'll contact you shortly.</p>

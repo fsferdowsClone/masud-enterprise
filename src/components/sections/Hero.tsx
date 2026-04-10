@@ -1,12 +1,15 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 import { SiteContent } from '../../types';
+import Skeleton from '../ui/Skeleton';
+import MagneticButton from '../ui/MagneticButton';
 
 interface HeroProps {
   content: SiteContent;
+  loading?: boolean;
 }
 
-export default function Hero({ content }: HeroProps) {
+export default function Hero({ content, loading }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -29,12 +32,14 @@ export default function Hero({ content }: HeroProps) {
         style={{ y, scale }}
         className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
       >
-        <iframe
-          src="https://www.youtube.com/embed/GyQl-XRxLPI?autoplay=1&mute=1&loop=1&playlist=GyQl-XRxLPI&controls=0&showinfo=0&autohide=1&modestbranding=1&rel=0&playsinline=1"
-          className="absolute top-1/2 left-1/2 w-[115vw] h-[115vh] min-w-[177.77vh] min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-60"
-          allow="autoplay; encrypted-media"
-          title="Masud Enterprise Stage Showcase"
-        />
+        {!loading && (
+          <iframe
+            src="https://www.youtube.com/embed/GyQl-XRxLPI?autoplay=1&mute=1&loop=1&playlist=GyQl-XRxLPI&controls=0&showinfo=0&autohide=1&modestbranding=1&rel=0&playsinline=1"
+            className="absolute top-1/2 left-1/2 w-[115vw] h-[115vh] min-w-[177.77vh] min-h-[56.25vw] -translate-x-1/2 -translate-y-1/2 opacity-60"
+            allow="autoplay; encrypted-media"
+            title="Masud Enterprise Stage Showcase"
+          />
+        )}
         <div className="absolute inset-0 bg-brand-primary/0" />
       </motion.div>
 
@@ -68,39 +73,63 @@ export default function Hero({ content }: HeroProps) {
             }
           }}
         >
-          <motion.span 
+          <motion.div 
             variants={{
               hidden: { opacity: 0, y: 10 },
               visible: { opacity: 1, y: 0 }
             }}
-            className="text-brand-accent uppercase tracking-[0.8em] text-[10px] font-bold mb-8 block"
+            className="mb-8 flex justify-center"
           >
-            Riyadh's Premier Stage Builders
-          </motion.span>
+            {loading ? (
+              <Skeleton variant="text" className="w-48 h-3" />
+            ) : (
+              <span className="text-brand-accent uppercase tracking-[0.8em] text-[10px] font-bold block">
+                Riyadh's Premier Stage Builders
+              </span>
+            )}
+          </motion.div>
 
-          <motion.h1 
+          <motion.div 
             variants={{
               hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl md:text-6xl font-display font-bold text-brand-neutral mb-8 leading-[0.85] tracking-tighter uppercase"
+            className="mb-8"
           >
-            {content.heroTitle.split(' ').map((word, i) => (
-              <span key={i} className={i === 1 ? 'italic font-serif font-light text-brand-accent lowercase' : ''}>{word} </span>
-            ))}
-          </motion.h1>
+            {loading ? (
+              <div className="space-y-4 flex flex-col items-center">
+                <Skeleton variant="text" className="w-[80vw] md:w-[600px] h-12" />
+                <Skeleton variant="text" className="w-[60vw] md:w-[400px] h-12" />
+              </div>
+            ) : (
+              <h1 className="text-4xl md:text-6xl font-display font-bold text-brand-neutral leading-[0.85] tracking-tighter uppercase">
+                {content.heroTitle.split(' ').map((word, i) => (
+                  <span key={i} className={i === 1 ? 'italic font-serif font-light text-brand-accent lowercase' : ''}>{word} </span>
+                ))}
+              </h1>
+            )}
+          </motion.div>
 
-          <motion.p 
+          <motion.div 
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 }
             }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-brand-neutral/30 max-w-md mx-auto text-sm font-light leading-relaxed mb-10"
+            className="mb-10 flex justify-center"
           >
-            {content.heroSubtitle}
-          </motion.p>
+            {loading ? (
+              <div className="space-y-2 flex flex-col items-center">
+                <Skeleton variant="text" className="w-[50vw] md:w-[300px] h-3" />
+                <Skeleton variant="text" className="w-[40vw] md:w-[250px] h-3" />
+              </div>
+            ) : (
+              <p className="text-brand-neutral/30 max-w-md mx-auto text-sm font-light leading-relaxed">
+                {content.heroSubtitle}
+              </p>
+            )}
+          </motion.div>
           
           <motion.div 
             variants={{
@@ -109,22 +138,25 @@ export default function Hero({ content }: HeroProps) {
             }}
             className="flex flex-col md:flex-row items-center justify-center gap-6"
           >
-            <motion.a 
-              whileHover={{ scale: 1.05, y: -2, boxShadow: '0 20px 40px rgba(197,160,89,0.3)' }}
-              whileTap={{ scale: 0.95 }}
-              href="#contact"
-              className="px-10 py-4 bg-brand-accent text-brand-primary font-bold rounded-full shadow-[0_10px_30px_rgba(197,160,89,0.1)] transition-all tracking-[0.4em] uppercase text-[9px]"
-            >
-              Get a Quote
-            </motion.a>
-            <motion.a 
-              whileHover={{ scale: 1.05, y: -2, backgroundColor: 'rgba(255,255,255,0.1)' }}
-              whileTap={{ scale: 0.95 }}
-              href="#stages"
-              className="px-10 py-4 border border-white/10 text-brand-neutral font-bold rounded-full transition-all tracking-[0.4em] uppercase text-[9px]"
-            >
-              View Stage Types
-            </motion.a>
+            {loading ? (
+              <>
+                <Skeleton className="w-40 h-12 rounded-full" />
+                <Skeleton className="w-40 h-12 rounded-full" />
+              </>
+            ) : (
+              <>
+                <MagneticButton href="#contact">
+                  <div className="px-10 py-4 bg-brand-accent text-brand-primary font-bold rounded-full shadow-[0_10px_30px_rgba(197,160,89,0.1)] transition-all tracking-[0.4em] uppercase text-[9px] hover:shadow-[0_20px_40px_rgba(197,160,89,0.3)]">
+                    Get a Quote
+                  </div>
+                </MagneticButton>
+                <MagneticButton href="#stages">
+                  <div className="px-10 py-4 border border-white/10 text-brand-neutral font-bold rounded-full transition-all tracking-[0.4em] uppercase text-[9px] hover:bg-white/10">
+                    View Stage Types
+                  </div>
+                </MagneticButton>
+              </>
+            )}
           </motion.div>
         </motion.div>
       </div>

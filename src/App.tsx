@@ -13,6 +13,9 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'moti
 
 import LuxDivider from './components/ui/LuxDivider';
 
+import Skeleton from './components/ui/Skeleton';
+import SEO from './components/SEO';
+
 export default function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const { content, loading } = useSiteContent();
@@ -32,19 +35,9 @@ export default function App() {
   const spotlightX = useSpring(mouseX, { damping: 20, stiffness: 150 });
   const spotlightY = useSpring(mouseY, { damping: 20, stiffness: 150 });
 
-  if (loading || !content) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center bg-brand-neutral">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-primary/40">Masud Enterprise</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative selection:bg-brand-accent selection:text-brand-primary">
+      {content && <SEO content={content} />}
       <div className="noise-overlay" />
       
       {/* Cursor Spotlight */}
@@ -60,7 +53,7 @@ export default function App() {
       <Navbar onAdminClick={() => setShowAdmin(true)} />
       
       <main>
-        <Hero content={content} />
+        <Hero content={content || { heroTitle: "", heroSubtitle: "", aboutText: "", contactEmail: "", contactPhone: "", address: "" }} loading={loading} />
         
         {/* About Section - Advanced Editorial Upgrade */}
         <section className="relative py-32 px-6 bg-brand-primary text-brand-neutral overflow-hidden">
@@ -82,21 +75,29 @@ export default function App() {
                   The Legacy
                 </motion.span>
                 <h2 className="text-4xl md:text-6xl font-serif leading-[1.1] mb-16 tracking-tight">
-                  {content.aboutText.split(' ').map((word, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-                      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                      transition={{ 
-                        duration: 0.8, 
-                        delay: i * 0.03,
-                        ease: [0.22, 1, 0.36, 1]
-                      }}
-                      className="inline-block mr-[0.3em]"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
+                  {loading ? (
+                    <div className="space-y-4">
+                      <Skeleton variant="text" className="h-12 w-full" />
+                      <Skeleton variant="text" className="h-12 w-3/4" />
+                      <Skeleton variant="text" className="h-12 w-1/2" />
+                    </div>
+                  ) : (
+                    (content?.aboutText || "").split(' ').map((word, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                        whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{ 
+                          duration: 0.8, 
+                          delay: i * 0.03,
+                          ease: [0.22, 1, 0.36, 1]
+                        }}
+                        className="inline-block mr-[0.3em]"
+                      >
+                        {word}
+                      </motion.span>
+                    ))
+                  )}
                 </h2>
                 
                 <div className="flex items-center gap-12">
@@ -158,7 +159,7 @@ export default function App() {
         <LuxDivider />
         <Blog />
         <LuxDivider />
-        <Contact />
+        <Contact content={content || { heroTitle: "", heroSubtitle: "", aboutText: "", contactEmail: "", contactPhone: "", address: "" }} loading={loading} />
       </main>
 
       <footer className="py-12 px-6 bg-brand-primary text-brand-neutral border-t border-brand-neutral/5">
